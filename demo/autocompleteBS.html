@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <link href="../css/autocompleteBS.css" rel="stylesheet">
+    <title>autoCompleteBS</title>
+  </head>
+  <body>
+    <div class="container">
+
+      <h1>Complete BS Demo</h1>
+
+      <form>
+        <div class="mb-3 autocompleteBS">
+          <label for="inputText1" class="form-label">Input Text 1</label>
+          <input type="text" class="form-control" id="inputText1">
+          <div id="inputText1Help" class="form-text">Inputs into this field summon an autocomplete.</div>
+        </div>
+        <div class="mb-3 autocompleteBS">
+          <label for="inputText2" class="form-label">Input Text 2</label>
+          <input type="text" class="form-control" id="inputText2">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+
+        <div class="d-nonx mt-2">
+          <h2>Hidden IDs</h2>
+          <div class="mb-3">
+            <label for="inputID1" class="form-label">Captured ID 1</label>
+            <input type="text" class="form-control" id="inputID1" disabled>
+          </div>
+          
+          <div class="mb-3">
+            <label for="inputID2" class="form-label">Captured ID 2</label>
+            <input type="text" class="form-control" id="inputID2" disabled>
+          </div>
+        </div>
+        
+      </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.min.js" integrity="sha384-nsg8ua9HAw1y0W1btsyWgBklPnCUAFLuTMS2G72MMONqmOymq585AcH49TLBQObG" crossorigin="anonymous"></script>
+    <script src="../js/autocompleteBS.js"></script>
+    <script src="js/autocompleteBSDemo.js"></script>
+  </body>
+</html>
