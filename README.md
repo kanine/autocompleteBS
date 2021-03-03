@@ -1,7 +1,8 @@
 # autocompleteBS
 A Javascript autocomplete library for Bootstrap.
 
-*Work in Progress*
+##*Note: Work in Progress (Alpha) - May contain multiple bugs*##
+
 ## Description
 The intention of this library is to make it easier add autocomplete functionality for bootstrap projects. To date not a lot of effort has been made to make the library cross browser compatible but it does try to use vanillaJS to remove any dependencies on other librarys so it is not dependent on Bootstrap, that just happens to be my usecase.
 
