@@ -13,8 +13,8 @@ The intention of this library is to make it easier add autocomplete functionalit
 * Use a GET fetch call with the 'term' variable set
 
 ## To Do List
-* Filtering of results that come back raw (eg JSON lists of countries)
+* Filtering of results that come back raw, eg JSON lists of countries
 * More configration options, eg own search/regex functions
 * Static lists without the use of Fetch
-* Cross browser testing and confirmation
+* Cross browser testing
 * Lot's more testing!
