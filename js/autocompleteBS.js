@@ -69,8 +69,8 @@ function addResultsBS(config, results) {
       console.log(results[selectedValue.dataset.resultid]);
       config.inputSource.value = selectedValue.value;
       config.targetID.value = selectedValue.dataset.id;
-      if ('function' === typeof window.resultHandler) {
-        resultHandler(config.name, results[selectedValue.dataset.resultid]);
+      if ('function' === typeof window.resulthandlerBS) {
+        resulthandlerBS(config.name, results[selectedValue.dataset.resultid]);
       }
       clearListBS();
     });
@@ -156,8 +156,8 @@ function handleKeyDownBS(e, config) {
         clearListBS();
         console.log(currentPosition);
         config.targetID.value = results[currentPosition].id;
-        if ('function' === typeof window.resultHandler) {
-          resultHandler(config.name, results[currentPosition]);
+        if ('function' === typeof window.resulthandlerBS) {
+          resulthandlerBS(config.name, results[currentPosition]);
         }
         break;
       case 'escape':

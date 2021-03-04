@@ -20,7 +20,7 @@ const autoCompleteConfig = [{
 autocompleteBS(autoCompleteConfig);
 
 // Optional Results Handler Function
-function resultHandler(name, selectedData){
+function resulthandlerBS(name, selectedData){
   console.log(name);
   console.log(selectedData);
 }
