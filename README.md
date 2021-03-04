@@ -2,7 +2,7 @@
 A Javascript autocomplete library for Bootstrap.
 
 ## Description
-The intention of this library is to make it easier add autocomplete functionality for bootstrap projects. To date not a lot of effort has been made to make the library cross browser compatible but it does use vanillaJS to remove any dependencies on other librarys so it is not dependent on Bootstrap, that just happens to be my usecase.
+The intention of this library is to make it easier add autocomplete functionality for bootstrap projects. To date not a lot of effort has been made to make the library cross browser compatible but it does use vanillaJS to remove any dependencies on other libraries so it is not dependent on Bootstrap, that just happens to be my usecase.
 
 ## Features
 * Simple drop in of small part of sample to bring text inputs to life
