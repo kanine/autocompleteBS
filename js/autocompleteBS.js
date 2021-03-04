@@ -39,7 +39,7 @@ function addResultsBS(config, results) {
   let resultCounter = 0;
   
   results.forEach( function(result) {
-    console.log(result);
+    // console.log(result);
     let listDiv = document.createElement('div');
     let listInput = document.createElement('input');
 
@@ -56,7 +56,7 @@ function addResultsBS(config, results) {
     listDiv.append(listInput);
     newDiv.append(listDiv);
     resultCounter++;
-    console.log(newDiv);
+    // console.log(newDiv);
 
   });
 
@@ -65,8 +65,8 @@ function addResultsBS(config, results) {
       console.log(e.target);
       let selectedElement = e.target;
       let selectedValue = selectedElement.querySelector('input');
-      console.log(selectedValue.value);
-      console.log(results[selectedValue.dataset.resultid]);
+      //console.log(selectedValue.value);
+      //console.log(results[selectedValue.dataset.resultid]);
       config.inputSource.value = selectedValue.value;
       config.targetID.value = selectedValue.dataset.id;
       if ('function' === typeof window.resulthandlerBS) {
@@ -75,19 +75,21 @@ function addResultsBS(config, results) {
       clearListBS();
     });
 
-    console.log('Add dropdown to Input Source');
+    console.log('Add autocompleteBS-list Input Source: ' + sourceBS.id);
 
-    console.log(newDiv);
+    // console.log(newDiv);
     sourceBS.parentElement.append(newDiv);
 
   }
 
 function handleInputBS(e, config) {
   console.log('handleInputBS');
-  let input = e.target;
   let inputValue = e.target.value;
   
-  if ( inputValue.length < config.minLength ) return;
+  if ( inputValue.length < config.minLength ) {
+    clearListBS();
+    return;
+  }
 
   console.log(e);
   console.log(config);
@@ -192,26 +194,29 @@ function setPositionBS(config, positionBS) {
   
 }
 
-function clickCheckBS(target, config) {
+function clickCheckBS(e, config) {
 
-   const autocompleteDivC = document.getElementById("autocompleteBS-list");
+   const autocompleteDiv = document.getElementById("autocompleteBS-list");
+   console.log('clickCheckBS - Document Click Handler');
 
-   if ( ! autocompleteDivC ) return;
+   if ( ! autocompleteDiv ) return;
 
-   if ( autocompleteDivC && autocompleteDivC.dataset.forinputbs == target.id ) {
-     console.log('do not clear');
+   let sourceBS = autocompleteDiv.dataset.forinputbs;
+
+   if ( sourceBS == e.target.id ) {
+     console.log('Clicked in Target: ' + sourceBS);
    } else {
-     console.log('clear list');     
-     clearListBS();
+     console.log('Clicked outside target with an active list - Send back to input');
+     document.getElementById(sourceBS).focus();
    }
-
 
 }
 
 
 function autocompleteBS(configBS) {
 
-  document.addEventListener('click',  function(e) { clickCheckBS(e.target,configBS); } );
+  // General Document Level Click Hander
+  document.addEventListener('click',  function(e) { clickCheckBS(e); } );
 
   configBS.forEach( function(config) {
     
