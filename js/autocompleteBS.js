@@ -1,5 +1,3 @@
-// To Do - Set ID and Return Object on 'Enter' Press
-
 function debounce(func, wait, immediate) {
 	var timeout;
 	return function() {
@@ -26,8 +24,7 @@ function addResultsBS(config, results) {
   clearListBS();
   const newDiv = document.createElement('div');
   const sourceBS = config.inputSource;
-
- console.log(sourceBS.id);
+  console.log(sourceBS.id);
 
   newDiv.classList.add("autocompleteBS-items");
   newDiv.setAttribute('data-forinputbs', sourceBS.id);
@@ -61,7 +58,7 @@ function addResultsBS(config, results) {
   });
 
     newDiv.addEventListener("click", function(e) {
-      console.log('Selection Click Event');
+      console.log('Autocomplete List Click Event');
       console.log(e.target);
       let selectedElement = e.target;
       let selectedValue = selectedElement.querySelector('input');
@@ -69,8 +66,8 @@ function addResultsBS(config, results) {
       //console.log(results[selectedValue.dataset.resultid]);
       config.inputSource.value = selectedValue.value;
       config.targetID.value = selectedValue.dataset.id;
-      if ('function' === typeof window.resulthandlerBS) {
-        resulthandlerBS(config.name, results[selectedValue.dataset.resultid]);
+      if ('function' === typeof window.resultHandlerBS) {
+        resultHandlerBS(config.name, results[selectedValue.dataset.resultid]);
       }
       clearListBS();
     });
@@ -158,8 +155,8 @@ function handleKeyDownBS(e, config) {
         clearListBS();
         console.log(currentPosition);
         config.targetID.value = results[currentPosition].id;
-        if ('function' === typeof window.resulthandlerBS) {
-          resulthandlerBS(config.name, results[currentPosition]);
+        if ('function' === typeof window.resultHandlerBS) {
+          resultHandlerBS(config.name, results[currentPosition]);
         }
         break;
       case 'escape':
