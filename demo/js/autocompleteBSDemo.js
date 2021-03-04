@@ -16,12 +16,12 @@ const autoCompleteConfig = [{
   }
 ];
 
+console.log(autoCompleteConfig);
+
 // Initiate Autocomplete to Create Listeners
 autocompleteBS(autoCompleteConfig);
 
-// Optional Results Handler Function
-function resulthandlerBS(name, selectedData){
-  console.log(name);
+function resultHandlerBS(inputName, selectedData) {
+  console.log(inputName);
   console.log(selectedData);
 }
-
