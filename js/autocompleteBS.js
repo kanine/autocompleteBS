@@ -154,9 +154,9 @@ function handleKeyDownBS(e, config) {
         e.preventDefault();
         clearListBS();
         console.log(currentPosition);
-        config.targetID.value = results[currentPosition].id;
+        config.targetID.value = results[currentPosition - 1].id;
         if ('function' === typeof window.resultHandlerBS) {
-          resultHandlerBS(config.name, results[currentPosition]);
+          resultHandlerBS(config.name, results[currentPosition - 1]);
         }
         break;
       case 'escape':
