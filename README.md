@@ -7,7 +7,7 @@ The intention of this library is to make it easier add autocomplete functionalit
 Demo: [Country Lookups by Country or Capital](https://kanine.github.io/autcompleteBS/autocompleteBS.html)
 
 ## Features
-* Simple drop in of small part of sample to bring text inputs to life
+* Simple configuration to add autocomplete to inputs
 * Allow multiple autocompletes on the page
 * Keyboard controls to navigate list (Up, Down, Tabbing, Escape and Enter)
 * Use a GET fetch call with the 'term' variable set
