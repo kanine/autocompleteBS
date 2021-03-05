@@ -1,18 +1,24 @@
 const autoCompleteConfig = [{
-    name: 'Input 1',
-    debounceMS: 1500,
+    name: 'Countries by Capital',
+    debounceMS: 250,
     minLength: 3,
+    maxResults: 10,
     inputSource: document.getElementById('inputText1'),
     targetID: document.getElementById('inputID1'),
-    fetchURL: 'example_url',
+    fetchURL: 'https://restcountries.eu/rest/v2/capital/{term}',
+    fetchMap: {id: "alpha2Code",
+               name: "capital"}
   },
   {
-    name: 'Input 2',
+    name: 'Countries by Name',
     debounceMS: 300,
     minLength: 3,
+    maxResults: 10,
     inputSource: document.getElementById('inputText2'),
     targetID: document.getElementById('inputID2'),
-    fetchURL: 'example_url',
+    fetchURL: 'https://restcountries.eu/rest/v2/name/{term}',
+    fetchMap: {id: "alpha2Code",
+               name: "name"}
   }
 ];
 

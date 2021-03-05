@@ -40,11 +40,11 @@ function addResultsBS(config, results) {
     let listDiv = document.createElement('div');
     let listInput = document.createElement('input');
 
-    listDiv.innerHTML = result.value;
+    listDiv.innerHTML = result[config.fetchMap.name];
 
     listInput.id = 'autoBS-' + resultCounter;
-    listInput.setAttribute('value', result.value);
-    listInput.setAttribute('data-id', result.id);
+    listInput.setAttribute('value', result[config.fetchMap.name]);
+    listInput.setAttribute('data-id', result[config.fetchMap.id]);
     listInput.setAttribute('data-resultid', resultCounter);
     listInput.hidden = true;
 
@@ -91,11 +91,17 @@ function handleInputBS(e, config) {
   console.log(e);
   console.log(config);
 
-  fetch(config.fetchURL + '?term='+ encodeURIComponent(inputValue) )
+  //let fetchURL = str.replace(config.fetchURL);
+  let fetchURL = config.fetchURL.replace('{term}', encodeURIComponent(inputValue));
+  console.log(fetchURL)
+
+  //fetch(config.fetchURL + '?term='+ encodeURIComponent(inputValue) )
+  fetch(fetchURL )
   .then(response => response.json())
   .then(response  => {
       results = response;
       console.log(results);
+      if ( results.length > config.maxResults ) results.length = config.maxResults;
       addResultsBS(config, results);
   })
   .catch(error => console.error('Error:', error)); 
