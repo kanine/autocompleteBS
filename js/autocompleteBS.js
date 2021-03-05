@@ -160,7 +160,7 @@ function handleKeyDownBS(e, config) {
         e.preventDefault();
         clearListBS();
         console.log(currentPosition);
-        config.targetID.value = results[currentPosition - 1].id;
+        config.targetID.value = results[currentPosition - 1][config.fetchMap.id];
         if ('function' === typeof window.resultHandlerBS) {
           resultHandlerBS(config.name, results[currentPosition - 1]);
         }
