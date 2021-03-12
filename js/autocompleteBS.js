@@ -31,6 +31,8 @@ function addResultsBS(config, results) {
   newDiv.setAttribute('data-current', -1);
   newDiv.setAttribute('data-results', results.length);
 
+  console.log(results);
+
   if ( results.length === 0 ) {
     console.log('No Matches - Push a Message onto Results');
     let pseudoResult = { [config.fetchMap.id]: "noMatchesBS", [config.fetchMap.name]: "No Matches Found - Please try again..." };
@@ -113,9 +115,13 @@ function handleInputBS(e, config) {
   //fetch(config.fetchURL + '?term='+ encodeURIComponent(inputValue) )
   fetch(fetchURL )
   .then(response => response.json())
-  .then(response  => {
+  .then(response => {
       results = response;
       console.log(results);
+      if ( !Array.isArray(results) ) {
+        console.log('Was expecting an array from the Fetch API - Setting to Empty');
+        results = [];
+      }
       if ( results.length > config.maxResults ) results.length = config.maxResults;
       addResultsBS(config, results);
   })
