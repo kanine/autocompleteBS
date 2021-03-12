@@ -4,7 +4,7 @@ A Javascript autocomplete library for Bootstrap.
 ## Description
 The intention of this library is to make it easier add autocomplete functionality for bootstrap projects. To date not a lot of effort has been made to make the library cross browser compatible but it does use vanilla JS to remove any dependencies on any other JavaScript libraries.
 
-Demo: [Lookups by Capital or Country](https://kanine.github.io/autcompleteBS/autocompleteBS.html)
+Demo: [Lookups by Capital or Country](https://kanine.github.io/autocompleteBS/demo/autocompleteBS.html)
 
 ## Features
 * Simple configuration to add autocomplete to inputs
