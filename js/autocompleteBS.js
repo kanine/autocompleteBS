@@ -15,8 +15,8 @@ function debounce(func, wait, immediate) {
 
 function clearListBS() {
   console.log('Clearing List');
-  let autocompleteDiv = document.getElementById("autocompleteBS-list");
-  if( autocompleteDiv != null ) autocompleteDiv.remove();
+  let autocompleteBSDiv = document.getElementById("autocompleteBS-list");
+  if( autocompleteBSDiv != null ) autocompleteBSDiv.remove();
 }
 
 function addResultsBS(config, results) {
@@ -30,8 +30,12 @@ function addResultsBS(config, results) {
   newDiv.setAttribute('data-forinputbs', sourceBS.id);
   newDiv.setAttribute('data-current', -1);
   newDiv.setAttribute('data-results', results.length);
-  // console.log(sourceBS);
-  // console.log(sourceBS.parentElement);
+
+  if ( results.length === 0 ) {
+    console.log('No Matches - Push a Message onto Results');
+    let pseudoResult = { [config.fetchMap.id]: "noMatchesBS", [config.fetchMap.name]: "No Matches Found - Please try again..." };
+    results.push(pseudoResult);
+  }
   newDiv.id = "autocompleteBS-list";
   let resultCounter = 0;
   
@@ -60,6 +64,17 @@ function addResultsBS(config, results) {
     newDiv.addEventListener("click", function(e) {
       console.log('Autocomplete List Click Event');
       console.log(e.target);
+
+      const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
+      let totalResults = parseInt(autocompleteBSDiv.dataset.results);
+      let inputSource = autocompleteBSDiv.dataset.forinputbs;
+
+      if ( totalResults === 0 ) {
+        console.log('not a valid entry');
+        document.getElementById(inputSource).focus();
+        return;
+      }
+     
       let selectedElement = e.target;
       let selectedValue = selectedElement.querySelector('input');
       //console.log(selectedValue.value);
@@ -72,10 +87,10 @@ function addResultsBS(config, results) {
       clearListBS();
     });
 
-    console.log('Add autocompleteBS-list Input Source: ' + sourceBS.id);
+  console.log('Add autocompleteBS-list Input Source: ' + sourceBS.id);
 
-    // console.log(newDiv);
-    sourceBS.parentElement.append(newDiv);
+  // console.log(newDiv);
+  sourceBS.parentElement.append(newDiv);
 
   }
 
@@ -110,15 +125,15 @@ function handleInputBS(e, config) {
 
 function handleKeyDownBS(e, config) {
 
-  const autocompleteDiv = document.getElementById("autocompleteBS-list");
+  const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
   const sourceBS = config.inputSource;
   
-  if ( ! autocompleteDiv ) return;
+  if ( ! autocompleteBSDiv ) return;
 
-  let currentPosition = parseInt(autocompleteDiv.dataset.current);
-  let totalResults = parseInt(autocompleteDiv.dataset.results);
+  let currentPosition = parseInt(autocompleteBSDiv.dataset.current);
+  let totalResults = parseInt(autocompleteBSDiv.dataset.results);
 
-  if ( autocompleteDiv.dataset.forinputbs == e.target.id ) {
+  if ( autocompleteBSDiv.dataset.forinputbs == e.target.id ) {
     console.log('Key Pressed: ' + e.keyCode);
 
     let keyPressed = parseInt(e.keyCode);
@@ -134,6 +149,7 @@ function handleKeyDownBS(e, config) {
     switch ( keyAction ) {
       case 'down':
         e.preventDefault();
+        if ( totalResults === 0 ) return;
         if ( currentPosition === -1 ) {
           currentPosition = 1;
         } else {
@@ -141,11 +157,12 @@ function handleKeyDownBS(e, config) {
         }
         if ( currentPosition > totalResults ) currentPosition = 1;
         console.log('New Position: ' + currentPosition);
-        autocompleteDiv.dataset.current = currentPosition;
+        autocompleteBSDiv.dataset.current = currentPosition;
         setPositionBS(config, currentPosition);
         break;
       case 'up':
         e.preventDefault();
+        if ( totalResults === 0 ) return;
         if ( currentPosition === -1 ) {
           currentPosition = 1;
         } else {
@@ -153,7 +170,7 @@ function handleKeyDownBS(e, config) {
         }
         if ( currentPosition < 1 ) currentPosition = totalResults;
         console.log('New Position: ' + currentPosition);
-        autocompleteDiv.dataset.current = currentPosition;
+        autocompleteBSDiv.dataset.current = currentPosition;
         setPositionBS(config, currentPosition);
         break;
       case 'enter':
@@ -179,10 +196,11 @@ function handleKeyDownBS(e, config) {
 }
 
 function setPositionBS(config, positionBS) {
-  const autocompleteDiv = document.getElementById("autocompleteBS-list");
-  if ( ! autocompleteDiv ) return;
+  console.log('setPositionBS');
+  const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
+  if ( ! autocompleteBSDiv ) return;
 
-  const listItems = Array.from(autocompleteDiv.children);
+  const listItems = Array.from(autocompleteBSDiv.children);
 
   listItems.forEach( function(listItem) {
     let selectedValue = listItem.querySelector('input');
@@ -199,12 +217,12 @@ function setPositionBS(config, positionBS) {
 
 function clickCheckBS(e, config) {
 
-   const autocompleteDiv = document.getElementById("autocompleteBS-list");
+   const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
    console.log('clickCheckBS - Document Click Handler');
 
-   if ( ! autocompleteDiv ) return;
+   if ( ! autocompleteBSDiv ) return;
 
-   let sourceBS = autocompleteDiv.dataset.forinputbs;
+   let sourceBS = autocompleteBSDiv.dataset.forinputbs;
 
    if ( sourceBS == e.target.id ) {
      console.log('Clicked in Target: ' + sourceBS);
