@@ -150,6 +150,8 @@ function handleKeyDownBS(e, config) {
     if ( keyPressed === 13 ) keyAction = 'enter';
     if ( keyPressed === 27 ) keyAction = 'escape';
 
+    if ( keyAction === 'enter' && totalResults > 0 && currentPosition === -1 ) keyAction = 'down';
+
     if (keyAction) console.log(keyAction);
   
     switch ( keyAction ) {
@@ -181,9 +183,10 @@ function handleKeyDownBS(e, config) {
         break;
       case 'enter':
         e.preventDefault();
-        clearListBS();
+        if ( totalResults === 0 ) return;
         console.log(currentPosition);
         config.targetID.value = results[currentPosition - 1][config.fetchMap.id];
+        clearListBS();
         if ('function' === typeof window.resultHandlerBS) {
           resultHandlerBS(config.name, results[currentPosition - 1]);
         }
