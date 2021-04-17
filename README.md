@@ -19,5 +19,12 @@ Demo: [Lookups by Capital or Country](https://kanine.github.io/autocompleteBS/de
 * Cross browser testing
 * A lot more testing and error handling!
 
+## Installation
+* The easiest thing to do right now is to check out the demo
+* Installation typically involves configuring a config object as in the example and then pass this to the function autocompleteBS()
+* The results will display under the parent element that has the class autoconfigBS so that there is a placeholder for results to be inserted
+* Using the demo is pretty self explanatory and self contained
+* See sample JS code here: [Demo JS](https://github.com/kanine/autocompleteBS/blob/main/demo/js/autocompleteBSDemo.js)
+
 ### Feedback
 I am not a professional developer by anyone's calculation, so if you have feedback or suggestions of areas of improvement please just raise an issue and I will help where I can. If anyone wishes to help collaborate just let me know.
