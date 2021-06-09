@@ -4,8 +4,6 @@ A Javascript autocomplete library for Bootstrap.
 ## Description
 The intention of this library is to make it easier add autocomplete functionality for webdev projects. To date not a lot of effort has been made to make the library cross browser compatible but it does use Vanilla JS to remove any dependencies on other JavaScript libraries. Any use of bootstrap is optional.
 
-Demo: [Lookups by Capital or Country](https://kanine.github.io/autocompleteBS/demo/autocompleteBS.html)
-
 ## Features
 * Simple configuration to add autocomplete function to an input field
 * Allow multiple autocompletes on the page, and the ability to add additional post document load
@@ -27,6 +25,27 @@ Demo: [Lookups by Capital or Country](https://kanine.github.io/autocompleteBS/de
 * The results will display under the parent element that has the class autocompleteBS so that there is a placeholder for results to be inserted
 * Using the demo is pretty self explanatory and self contained
 * See sample JS code here: [Demo JS](https://github.com/kanine/autocompleteBS/blob/main/demo/js/autocompleteBSDemo.js)
+
+## Demo and example
+Demo: [Lookups by Capital or Country](https://kanine.github.io/autocompleteBS/demo/autocompleteBS.html)
+
+### Example
+```
+const ac = new AutocompleteBS([{
+        name: 'Countries by Capital',
+        debounceMS: 250,
+        minLength: 3,
+        maxResults: 10,
+        inputSource: form.querySelector(".inp"),
+        fetchURL: '/api/search',
+        fetchMap: {
+            id: "id",
+            caption: "name"
+        },
+        optionSelected: function (name, data, config) {
+        }
+    }]);
+```
 
 ## Contributions
 I am happy to consider any and all contributions that support the stated features. The intention is for this repo to be used in modern browsers and I'm naturally keen to learn better ways to do the things that are accomplished already. The only rule I have is to no shared libraries as this is intended to be completely stand-alone. One of the reasons I made this was many other examples introduce dependencies that I found were often out of date.
