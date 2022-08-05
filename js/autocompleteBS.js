@@ -78,9 +78,9 @@ function addResultsBS(config, results) {
       }
      
       let selectedElement = e.target;
+
+      if (e.target.localName !== "div") selectedElement = e.target.parentElement; 
       let selectedValue = selectedElement.querySelector('input');
-      //console.log(selectedValue.value);
-      //console.log(results[selectedValue.dataset.resultid]);
       config.inputSource.value = selectedValue.value;
       config.targetID.value = selectedValue.dataset.id;
       if ('function' === typeof window.resultHandlerBS) {
