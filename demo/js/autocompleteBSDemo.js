@@ -5,7 +5,7 @@ const autoCompleteConfig = [{
     maxResults: 10,
     inputSource: document.getElementById('inputText1'),
     targetID: document.getElementById('inputID1'),
-    fetchURL: 'https://restcountries.eu/rest/v2/capital/{term}',
+    fetchURL: 'https://restcountries.com/v2/capital/{term}',
     fetchMap: {id: "alpha2Code",
                name: "capital"}
   },
@@ -16,7 +16,7 @@ const autoCompleteConfig = [{
     maxResults: 10,
     inputSource: document.getElementById('inputText2'),
     targetID: document.getElementById('inputID2'),
-    fetchURL: 'https://restcountries.eu/rest/v2/name/{term}',
+    fetchURL: 'https://restcountries.com/v2/name/{term}',
     fetchMap: {id: "alpha2Code",
                name: "name"}
   }

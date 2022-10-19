@@ -12,7 +12,7 @@ Demo: [Lookups by Capital or Country](https://kanine.github.io/autocompleteBS/de
 * Configurable Debounce, Min Input Length and Max Results to display per input
 * Keyboard controls to navigate list (Up, Down, Tabbing, Escape and Enter to Select)
 * Source autocomplete data from an external API
-* Assume the source will supply additional properties that can be used in a result handle callback function
+* Assume the source will supply additional properties that can be used in a result handler callback function
 
 ## To Do List
 * Filtering of results that come back raw, eg JSON lists of countries
