@@ -123,6 +123,21 @@ function handleInputBS(e, config) {
         results = [];
       }
       if ( results.length > config.maxResults ) results.length = config.maxResults;
+      // If exactly one result, auto-select and do not render the list
+      if ( results.length === 1 ) {
+        try {
+          var single = results[0];
+          config.inputSource.value = single[config.fetchMap.name];
+          config.targetID.value = single[config.fetchMap.id];
+          if ('function' === typeof window.resultHandlerBS) {
+            resultHandlerBS(config.name, single);
+          }
+        } catch (e) {
+          console.error('Single result handling error:', e);
+        }
+        clearListBS();
+        return;
+      }
       addResultsBS(config, results);
   })
   .catch(error => console.error('Error:', error)); 
