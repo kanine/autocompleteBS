@@ -61,6 +61,7 @@ function addResultsBS(config, results) {
   newDiv.setAttribute('data-forinputbs', sourceBS.id);
   newDiv.setAttribute('data-current', -1);
   newDiv.setAttribute('data-results', results.length);
+  newDiv.setAttribute('data-results-json', JSON.stringify(results));
 
   console.log(results);
 
@@ -251,8 +252,11 @@ function handleKeyDownBS(e, config) {
       case 'enter':
         e.preventDefault();
         if (totalResults === 0) return;
+        if (currentPosition === -1) return; // No item selected yet
         console.log(currentPosition);
+        const results = JSON.parse(autocompleteBSDiv.dataset.resultsJson);
         const selectedResult = results[currentPosition - 1];
+        config.inputSource.value = getNestedProperty(selectedResult, config.fetchMap.name);
         config.targetID.value = getNestedProperty(selectedResult, config.fetchMap.id);
         clearListBS();
         // Call onSelect callback if provided (new pattern)
