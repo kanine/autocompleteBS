@@ -50,6 +50,22 @@ function clearListBS() {
   if (autocompleteBSDiv !== null) autocompleteBSDiv.remove();
 }
 
+/**
+ * Reposition the autocomplete dropdown relative to its input field
+ */
+function repositionDropdown() {
+  const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
+  if (!autocompleteBSDiv) return;
+  
+  const inputId = autocompleteBSDiv.dataset.forinputbs;
+  const inputElement = document.getElementById(inputId);
+  if (!inputElement) return;
+  
+  const inputRect = inputElement.getBoundingClientRect();
+  autocompleteBSDiv.style.top = (inputRect.bottom + window.scrollY) + 'px';
+  autocompleteBSDiv.style.left = (inputRect.left + window.scrollX) + 'px';
+}
+
 function addResultsBS(config, results) {
   console.log('Add Results');
   clearListBS();
@@ -57,11 +73,42 @@ function addResultsBS(config, results) {
   const sourceBS = config.inputSource;
   console.log(sourceBS.id);
 
-  newDiv.classList.add("autocompleteBS-items");
+  // Use Bootstrap classes for styling
+  newDiv.classList.add("list-group");
+  newDiv.classList.add("shadow-sm");
   newDiv.setAttribute('data-forinputbs', sourceBS.id);
   newDiv.setAttribute('data-current', -1);
   newDiv.setAttribute('data-results', results.length);
   newDiv.setAttribute('data-results-json', JSON.stringify(results));
+
+  // Add positioning styles - position absolute relative to input
+  newDiv.style.position = 'absolute';
+  newDiv.style.zIndex = '1050'; // Bootstrap modal z-index is 1055, dropdowns are 1000
+  newDiv.style.maxHeight = '300px';
+  newDiv.style.overflowY = 'auto';
+  
+  // Position directly under the input field
+  const inputRect = sourceBS.getBoundingClientRect();
+  newDiv.style.top = (inputRect.bottom + window.scrollY) + 'px';
+  newDiv.style.left = (inputRect.left + window.scrollX) + 'px';
+  
+  // Set width based on config or default to input width
+  if (config.maxWidth) {
+    // maxWidth can be a Bootstrap class like 'col-4' or a pixel value
+    if (config.maxWidth.startsWith('col-')) {
+      // Calculate Bootstrap column width percentage
+      const colNum = parseInt(config.maxWidth.split('-')[1]);
+      const percentage = (colNum / 12) * 100;
+      newDiv.style.width = percentage + '%';
+      newDiv.style.maxWidth = percentage + '%';
+    } else {
+      newDiv.style.maxWidth = config.maxWidth;
+      newDiv.style.width = config.maxWidth;
+    }
+  } else {
+    // Default to input width
+    newDiv.style.width = inputRect.width + 'px';
+  }
 
   console.log(results);
 
@@ -81,6 +128,11 @@ function addResultsBS(config, results) {
     // console.log(result);
     const listDiv = document.createElement('div');
     const listInput = document.createElement('input');
+
+    // Use Bootstrap list-group-item class
+    listDiv.classList.add("list-group-item");
+    listDiv.classList.add("list-group-item-action");
+    listDiv.style.cursor = 'pointer';
 
     // Use helper function to get nested property values
     const displayName = getNestedProperty(result, config.fetchMap.name);
@@ -136,8 +188,8 @@ function addResultsBS(config, results) {
 
   console.log('Add autocompleteBS-list Input Source: ' + sourceBS.id);
 
-  // console.log(newDiv);
-  sourceBS.parentElement.append(newDiv);
+  // Append to document body instead of parent element for proper positioning
+  document.body.append(newDiv);
 
   }
 
@@ -292,10 +344,11 @@ function setPositionBS(config, positionBS) {
     const selectedValue = listItem.querySelector('input');
     // console.log(selectedValue.dataset.resultid);
     if (parseInt(selectedValue.dataset.resultid) === positionBS - 1) {
-      listItem.classList.add("autocompleteBS-active");
+      // Use Bootstrap active class
+      listItem.classList.add("active");
       config.inputSource.value = selectedValue.value;
     } else {
-      listItem.classList.remove("autocompleteBS-active");
+      listItem.classList.remove("active");
     }
   });
   
@@ -324,6 +377,10 @@ function autocompleteBS(configBS) {
 
   // General Document Level Click Handler
   document.addEventListener('click', (e) => { clickCheckBS(e); });
+
+  // Add scroll and resize listeners to reposition dropdown
+  window.addEventListener('scroll', repositionDropdown, true); // Use capture to handle all scroll events
+  window.addEventListener('resize', repositionDropdown);
 
   configBS.forEach((config) => {
     
