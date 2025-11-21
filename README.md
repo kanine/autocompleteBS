@@ -16,6 +16,7 @@ Demo: [Lookups by Capital or Country](https://kanine.github.io/autocompleteBS/de
 * **NEW**: Dropdown positioning works correctly in Bootstrap navbars and complex layouts
 * **NEW**: Optional `maxWidth` configuration to control dropdown width using Bootstrap column classes (e.g., `col-4`, `col-6`)
 * **NEW**: Uses Bootstrap 5 classes exclusively - no custom CSS required
+* **NEW**: Selector for automatically selecting when the results are down to a single row
 * Automatically repositions dropdown on scroll and resize events
 
 ## To Do List
