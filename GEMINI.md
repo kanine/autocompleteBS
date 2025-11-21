@@ -7,10 +7,10 @@ This project is a lightweight and dependency-free JavaScript library for adding 
 - **HTML5/CSS3**: The project uses standard HTML and CSS for its structure and styling.
 
 ## Architecture
-The library consists of a main JavaScript file, `autocompleteBS.js`, which contains the core logic for handling user input, fetching data, and displaying suggestions. A CSS file, `autocompleteBS.css`, provides the necessary styling for the autocomplete dropdown. The library is configured by creating a JavaScript object with settings for each autocomplete instance.
+The library consists of a main JavaScript file, `autocompleteBS.js`, which contains the core logic for handling user input, fetching data, and displaying suggestions. The library now uses Bootstrap 5 classes exclusively for styling, eliminating the need for a separate CSS file. The autocomplete dropdown is positioned absolutely relative to the input field, making it work correctly in complex layouts like Bootstrap navbars. The library is configured by creating a JavaScript object with settings for each autocomplete instance.
 
 # Building and Running
-This is a client-side JavaScript library, so there is no build process required. To use the library, simply include the `autocompleteBS.js` and `autocompleteBS.css` files in your HTML.
+This is a client-side JavaScript library, so there is no build process required. To use the library, simply include Bootstrap 5 CSS and the `autocompleteBS.js` file in your HTML. No custom CSS file is needed.
 
 ## Running the Demo
 To run the included demo, open the `demo/autocompleteBS.html` file in a web browser. The demo showcases two autocomplete fields: one for searching countries by capital and another for searching by country name.

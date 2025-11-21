@@ -60,7 +60,7 @@ Demo: [Lookups by Capital or Country](https://kanine.github.io/autocompleteBS/de
     }
   }];
   
-  autocompleteBS(config);
+  new AutocompleteBS(config);
 </script>
 ```
 
@@ -76,6 +76,7 @@ Demo: [Lookups by Capital or Country](https://kanine.github.io/autocompleteBS/de
 * `fetchURL`: String - API endpoint URL with `{term}` placeholder
 * `fetchMap`: Object - Maps API response properties to {id, name}
 * `noMatchesMessage`: String (optional) - Custom "no results" message
+* `autoSelectSingleResult`: Boolean (optional, default: true) - When true, automatically selects single search results. When false, shows the result in the dropdown list
 * `onSelect`: Function (optional) - Callback when item is selected
 
 ## Contributions

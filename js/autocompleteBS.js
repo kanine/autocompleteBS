@@ -1,397 +1,308 @@
-'use strict';
-
 /**
- * Helper function to get nested property value from an object
- * Supports dot notation like "name.common" or "capital.0"
- * Also handles array values by returning the first element or joining them
- * @param {Object} obj - The object to traverse
- * @param {String} path - The property path (e.g., "name.common")
- * @returns {*} The value at the path, or undefined if not found
+ * AutocompleteBS - A lightweight, dependency-free autocomplete library for Bootstrap 5
+ * Modernized with ES6+ Class, improved security, and accessibility.
  */
-function getNestedProperty(obj, path) {
-  if (!path) return undefined;
-  
-  // Split the path by dots to handle nested properties
-  const keys = path.split('.');
-  let value = obj;
-  
-  for (const key of keys) {
-    if (value == null) return undefined;
-    value = value[key];
-  }
-  
-  // If the final value is an array, return the first element or join with comma
-  if (Array.isArray(value)) {
-    return value.length > 0 ? value[0] : '';
-  }
-  
-  return value;
-}
-
-function debounce(func, wait, immediate) {
-	let timeout;
-	return function() {
-		const context = this;
-		const args = arguments;
-		const later = () => {
-			timeout = null;
-			if (!immediate) func.apply(context, args);
-		};
-		const callNow = immediate && !timeout;
-		clearTimeout(timeout);
-		timeout = setTimeout(later, wait);
-		if (callNow) func.apply(context, args);
-	};
-}
-
-function clearListBS() {
-  console.log('Clearing List');
-  const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
-  if (autocompleteBSDiv !== null) autocompleteBSDiv.remove();
-}
-
-/**
- * Reposition the autocomplete dropdown relative to its input field
- */
-function repositionDropdown() {
-  const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
-  if (!autocompleteBSDiv) return;
-  
-  const inputId = autocompleteBSDiv.dataset.forinputbs;
-  const inputElement = document.getElementById(inputId);
-  if (!inputElement) return;
-  
-  const inputRect = inputElement.getBoundingClientRect();
-  autocompleteBSDiv.style.top = (inputRect.bottom + window.scrollY) + 'px';
-  autocompleteBSDiv.style.left = (inputRect.left + window.scrollX) + 'px';
-}
-
-function addResultsBS(config, results) {
-  console.log('Add Results');
-  clearListBS();
-  const newDiv = document.createElement('div');
-  const sourceBS = config.inputSource;
-  console.log(sourceBS.id);
-
-  // Use Bootstrap classes for styling
-  newDiv.classList.add("list-group");
-  newDiv.classList.add("shadow-sm");
-  newDiv.setAttribute('data-forinputbs', sourceBS.id);
-  newDiv.setAttribute('data-current', -1);
-  newDiv.setAttribute('data-results', results.length);
-  newDiv.setAttribute('data-results-json', JSON.stringify(results));
-
-  // Add positioning styles - position absolute relative to input
-  newDiv.style.position = 'absolute';
-  newDiv.style.zIndex = '1050'; // Bootstrap modal z-index is 1055, dropdowns are 1000
-  newDiv.style.maxHeight = '300px';
-  newDiv.style.overflowY = 'auto';
-  
-  // Position directly under the input field
-  const inputRect = sourceBS.getBoundingClientRect();
-  newDiv.style.top = (inputRect.bottom + window.scrollY) + 'px';
-  newDiv.style.left = (inputRect.left + window.scrollX) + 'px';
-  
-  // Set width based on config or default to input width
-  if (config.maxWidth) {
-    // maxWidth can be a Bootstrap class like 'col-4' or a pixel value
-    if (config.maxWidth.startsWith('col-')) {
-      // Calculate Bootstrap column width percentage
-      const colNum = parseInt(config.maxWidth.split('-')[1]);
-      const percentage = (colNum / 12) * 100;
-      newDiv.style.width = percentage + '%';
-      newDiv.style.maxWidth = percentage + '%';
+class AutocompleteBS {
+  /**
+   * @param {Object|Array<Object>} config - Configuration object or array of configuration objects
+   */
+  constructor(config) {
+    if (Array.isArray(config)) {
+      this.instances = config.map(cfg => new AutocompleteBSInstance(cfg));
     } else {
-      newDiv.style.maxWidth = config.maxWidth;
-      newDiv.style.width = config.maxWidth;
+      this.instances = [new AutocompleteBSInstance(config)];
     }
-  } else {
-    // Default to input width
-    newDiv.style.width = inputRect.width + 'px';
+  }
+}
+
+class AutocompleteBSInstance {
+  constructor(config) {
+    this.config = {
+      name: 'Autocomplete',
+      debounceMS: 300,
+      minLength: 2,
+      maxResults: 10,
+      fetchMap: { id: 'id', name: 'name' },
+      noMatchesMessage: 'No matching results',
+      maxWidth: null,
+      autoSelectSingleResult: true,
+      ...config
+    };
+
+    if (!this.config.inputSource) {
+      console.error('AutocompleteBS: inputSource is required');
+      return;
+    }
+
+    this.results = [];
+    this.currentFocus = -1;
+    this.listId = `autocompleteBS-list-${Math.random().toString(36).substr(2, 9)}`;
+    
+    this.init();
   }
 
-  console.log(results);
+  init() {
+    // Bind methods
+    this.handleInput = this.debounce(this.handleInput.bind(this), this.config.debounceMS);
+    this.handleKeydown = this.handleKeydown.bind(this);
+    this.handleDocumentClick = this.handleDocumentClick.bind(this);
+    this.repositionDropdown = this.repositionDropdown.bind(this);
 
-  if (results.length === 0) {
-    console.log('No Matches - Push a Message onto Results');
-    // Create pseudo result with direct property assignment for "no matches" message
-    const noMatchesMessage = config.noMatchesMessage || 'No matching results';
-    const pseudoResult = {};
-    pseudoResult[config.fetchMap.id] = "noMatchesBS";
-    pseudoResult[config.fetchMap.name] = noMatchesMessage;
-    results.push(pseudoResult);
+    // Add Event Listeners
+    this.config.inputSource.addEventListener('input', this.handleInput);
+    this.config.inputSource.addEventListener('keydown', this.handleKeydown);
+    
+    // Accessibility attributes
+    this.config.inputSource.setAttribute('autocomplete', 'off');
+    this.config.inputSource.setAttribute('role', 'combobox');
+    this.config.inputSource.setAttribute('aria-autocomplete', 'list');
+    this.config.inputSource.setAttribute('aria-expanded', 'false');
+    this.config.inputSource.setAttribute('aria-haspopup', 'listbox');
+    
+    // Global listeners (managed carefully)
+    document.addEventListener('click', this.handleDocumentClick);
+    window.addEventListener('scroll', this.repositionDropdown, true);
+    window.addEventListener('resize', this.repositionDropdown);
   }
-  newDiv.id = "autocompleteBS-list";
-  let resultCounter = 0;
-  
-  results.forEach((result) => {
-    // console.log(result);
-    const listDiv = document.createElement('div');
-    const listInput = document.createElement('input');
 
-    // Use Bootstrap list-group-item class
-    listDiv.classList.add("list-group-item");
-    listDiv.classList.add("list-group-item-action");
-    listDiv.style.cursor = 'pointer';
+  /**
+   * Debounce helper
+   */
+  debounce(func, wait) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
 
-    // Use helper function to get nested property values
-    const displayName = getNestedProperty(result, config.fetchMap.name);
-    const idValue = getNestedProperty(result, config.fetchMap.id);
+  /**
+   * Get nested property value safely
+   */
+  getNestedProperty(obj, path) {
+    if (!path) return undefined;
+    const keys = path.split('.');
+    let value = obj;
+    for (const key of keys) {
+      if (value == null) return undefined;
+      value = value[key];
+    }
+    if (Array.isArray(value)) {
+      return value.length > 0 ? value[0] : '';
+    }
+    return value;
+  }
 
-    listDiv.innerHTML = displayName;
+  async handleInput(e) {
+    const inputValue = e.target.value;
+    
+    if (inputValue.length < this.config.minLength) {
+      this.closeList();
+      return;
+    }
 
-    listInput.id = 'autoBS-' + resultCounter;
-    listInput.setAttribute('value', displayName);
-    listInput.setAttribute('data-id', idValue);
-    listInput.setAttribute('data-resultid', resultCounter);
-    listInput.hidden = true;
+    const fetchURL = this.config.fetchURL.replace('{term}', encodeURIComponent(inputValue));
 
-    // console.log(listInput);
+    try {
+      const response = await fetch(fetchURL);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      let data = await response.json();
+      
+      if (!Array.isArray(data)) {
+        console.warn('AutocompleteBS: Expected array from API, got', typeof data);
+        data = [];
+      }
 
-    listDiv.append(listInput);
-    newDiv.append(listDiv);
-    resultCounter++;
-    // console.log(newDiv);
+      // Limit results
+      if (data.length > this.config.maxResults) {
+        data.length = this.config.maxResults;
+      }
 
-  });
+      this.results = data;
 
-    newDiv.addEventListener("click", (e) => {
-      console.log('Autocomplete List Click Event');
-      console.log(e.target);
-
-      const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
-      const totalResults = parseInt(autocompleteBSDiv.dataset.results);
-      const inputSource = autocompleteBSDiv.dataset.forinputbs;
-
-      if (totalResults === 0) {
-        console.log('not a valid entry');
-        document.getElementById(inputSource).focus();
+      // Auto-select if exactly one result (controlled by autoSelectSingleResult config)
+      if (this.results.length === 1 && this.config.autoSelectSingleResult) {
+        this.selectItem(this.results[0]);
+        this.closeList();
         return;
       }
-     
-      let selectedElement = e.target;
 
-      if (e.target.localName !== "div") selectedElement = e.target.parentElement; 
-      const selectedValue = selectedElement.querySelector('input');
-      config.inputSource.value = selectedValue.value;
-      config.targetID.value = selectedValue.dataset.id;
-      // Call onSelect callback if provided (new pattern)
-      if (typeof config.onSelect === 'function') {
-        config.onSelect(results[selectedValue.dataset.resultid]);
+      this.renderList();
+
+    } catch (error) {
+      console.error('AutocompleteBS Fetch Error:', error);
+      this.results = [];
+      this.renderList(); // Render empty/no-matches state
+    }
+  }
+
+  renderList() {
+    this.closeList();
+    
+    if (this.results.length === 0) {
+      this.renderNoMatches();
+      return;
+    }
+
+    const listDiv = document.createElement('div');
+    listDiv.id = this.listId;
+    listDiv.className = 'list-group shadow-sm';
+    listDiv.setAttribute('role', 'listbox');
+    
+    // Styling
+    listDiv.style.position = 'absolute';
+    listDiv.style.zIndex = '1050';
+    listDiv.style.maxHeight = '300px';
+    listDiv.style.overflowY = 'auto';
+    
+    // Width handling
+    if (this.config.maxWidth) {
+      if (this.config.maxWidth.startsWith('col-')) {
+        const colNum = parseInt(this.config.maxWidth.split('-')[1]);
+        const percentage = (colNum / 12) * 100;
+        listDiv.style.width = `${percentage}%`;
+      } else {
+        listDiv.style.width = this.config.maxWidth;
       }
-      // Fallback to legacy global resultHandlerBS for backwards compatibility
-      else if (typeof window.resultHandlerBS === 'function') {
-        resultHandlerBS(config.name, results[selectedValue.dataset.resultid]);
-      }
-      clearListBS();
+    } else {
+      listDiv.style.width = `${this.config.inputSource.getBoundingClientRect().width}px`;
+    }
+
+    this.results.forEach((result, index) => {
+      const item = document.createElement('button');
+      item.type = 'button'; // Prevent form submission
+      item.className = 'list-group-item list-group-item-action';
+      item.setAttribute('role', 'option');
+      item.id = `${this.listId}-item-${index}`;
+      
+      const displayName = this.getNestedProperty(result, this.config.fetchMap.name);
+      
+      // Security: Use textContent instead of innerHTML to prevent XSS
+      item.textContent = displayName;
+      
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.selectItem(result);
+        this.closeList();
+      });
+
+      listDiv.appendChild(item);
     });
 
-  console.log('Add autocompleteBS-list Input Source: ' + sourceBS.id);
-
-  // Append to document body instead of parent element for proper positioning
-  document.body.append(newDiv);
-
-  }
-
-function handleInputBS(e, config) {
-  console.log('handleInputBS');
-  const inputValue = e.target.value;
-  
-  if (inputValue.length < config.minLength) {
-    clearListBS();
-    return;
-  }
-
-  console.log(e);
-  console.log(config);
-
-  //const fetchURL = str.replace(config.fetchURL);
-  const fetchURL = config.fetchURL.replace('{term}', encodeURIComponent(inputValue));
-  console.log(fetchURL);
-
-  //fetch(config.fetchURL + '?term='+ encodeURIComponent(inputValue) )
-  fetch(fetchURL)
-  .then(response => response.json())
-  .then(response => {
-      let results = response;
-      console.log(results);
-      if (!Array.isArray(results)) {
-        console.log('Was expecting an array from the Fetch API - Setting to Empty');
-        results = [];
-      }
-      if (results.length > config.maxResults) results.length = config.maxResults;
-      // If exactly one result, auto-select and do not render the list
-      if (results.length === 1) {
-        try {
-          const single = results[0];
-          const displayName = getNestedProperty(single, config.fetchMap.name);
-          const idValue = getNestedProperty(single, config.fetchMap.id);
-          config.inputSource.value = displayName;
-          config.targetID.value = idValue;
-          // Call onSelect callback if provided (new pattern)
-          if (typeof config.onSelect === 'function') {
-            config.onSelect(single);
-          }
-          // Fallback to legacy global resultHandlerBS for backwards compatibility
-          else if (typeof window.resultHandlerBS === 'function') {
-            resultHandlerBS(config.name, single);
-          }
-        } catch (error) {
-          console.error('Single result handling error:', error);
-        }
-        clearListBS();
-        return;
-      }
-      addResultsBS(config, results);
-  })
-  .catch(error => console.error('Error:', error)); 
-
-}
-
-function handleKeyDownBS(e, config) {
-
-  const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
-  const sourceBS = config.inputSource;
-  
-  if (!autocompleteBSDiv) return;
-
-  let currentPosition = parseInt(autocompleteBSDiv.dataset.current);
-  const totalResults = parseInt(autocompleteBSDiv.dataset.results);
-
-  if (autocompleteBSDiv.dataset.forinputbs === e.target.id) {
-    // Use modern key property instead of deprecated keyCode
-    const key = e.key;
-    console.log('Key Pressed: ' + key);
-
-    let keyAction = '';
-
-    if (key === 'ArrowDown' || (key === 'Tab' && !e.shiftKey)) keyAction = 'down';
-    if (key === 'ArrowUp' || (key === 'Tab' && e.shiftKey)) keyAction = 'up';
-    if (key === 'Enter') keyAction = 'enter';
-    if (key === 'Escape') keyAction = 'escape';
-
-    if (keyAction === 'enter' && totalResults > 0 && currentPosition === -1) keyAction = 'down';
-
-    if (keyAction) console.log(keyAction);
-  
-    switch (keyAction) {
-      case 'down':
-        e.preventDefault();
-        if (totalResults === 0) return;
-        if (currentPosition === -1) {
-          currentPosition = 1;
-        } else {
-          currentPosition++;
-        }
-        if (currentPosition > totalResults) currentPosition = 1;
-        console.log('New Position: ' + currentPosition);
-        autocompleteBSDiv.dataset.current = currentPosition;
-        setPositionBS(config, currentPosition);
-        break;
-      case 'up':
-        e.preventDefault();
-        if (totalResults === 0) return;
-        if (currentPosition === -1) {
-          currentPosition = 1;
-        } else {
-          currentPosition--;
-        }
-        if (currentPosition < 1) currentPosition = totalResults;
-        console.log('New Position: ' + currentPosition);
-        autocompleteBSDiv.dataset.current = currentPosition;
-        setPositionBS(config, currentPosition);
-        break;
-      case 'enter':
-        e.preventDefault();
-        if (totalResults === 0) return;
-        if (currentPosition === -1) return; // No item selected yet
-        console.log(currentPosition);
-        const results = JSON.parse(autocompleteBSDiv.dataset.resultsJson);
-        const selectedResult = results[currentPosition - 1];
-        config.inputSource.value = getNestedProperty(selectedResult, config.fetchMap.name);
-        config.targetID.value = getNestedProperty(selectedResult, config.fetchMap.id);
-        clearListBS();
-        // Call onSelect callback if provided (new pattern)
-        if (typeof config.onSelect === 'function') {
-          config.onSelect(selectedResult);
-        }
-        // Fallback to legacy global resultHandlerBS for backwards compatibility
-        else if (typeof window.resultHandlerBS === 'function') {
-          resultHandlerBS(config.name, selectedResult);
-        }
-        break;
-      case 'escape':
-        e.preventDefault();
-        config.inputSource.value = '';
-        config.targetID.value = '';
-        clearListBS();
-        break;
-    }
-  } else {
-    console.log('No Key Action');     
-  }
-
-}
-
-function setPositionBS(config, positionBS) {
-  console.log('setPositionBS');
-  const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
-  if (!autocompleteBSDiv) return;
-
-  const listItems = Array.from(autocompleteBSDiv.children);
-
-  listItems.forEach((listItem) => {
-    const selectedValue = listItem.querySelector('input');
-    // console.log(selectedValue.dataset.resultid);
-    if (parseInt(selectedValue.dataset.resultid) === positionBS - 1) {
-      // Use Bootstrap active class
-      listItem.classList.add("active");
-      config.inputSource.value = selectedValue.value;
-    } else {
-      listItem.classList.remove("active");
-    }
-  });
-  
-}
-
-function clickCheckBS(e, config) {
-
-   const autocompleteBSDiv = document.getElementById("autocompleteBS-list");
-   console.log('clickCheckBS - Document Click Handler');
-
-   if (!autocompleteBSDiv) return;
-
-   const sourceBS = autocompleteBSDiv.dataset.forinputbs;
-
-   if (sourceBS === e.target.id) {
-     console.log('Clicked in Target: ' + sourceBS);
-   } else {
-     console.log('Clicked outside target with an active list - Send back to input');
-     document.getElementById(sourceBS).focus();
-   }
-
-}
-
-
-function autocompleteBS(configBS) {
-
-  // General Document Level Click Handler
-  document.addEventListener('click', (e) => { clickCheckBS(e); });
-
-  // Add scroll and resize listeners to reposition dropdown
-  window.addEventListener('scroll', repositionDropdown, true); // Use capture to handle all scroll events
-  window.addEventListener('resize', repositionDropdown);
-
-  configBS.forEach((config) => {
+    document.body.appendChild(listDiv);
+    this.repositionDropdown();
     
-    const updateValueDebounce = debounce((e) => {
-      handleInputBS(e, config);
-    }, config.debounceMS);
+    this.config.inputSource.setAttribute('aria-expanded', 'true');
+    this.config.inputSource.setAttribute('aria-controls', this.listId);
+    this.currentFocus = -1;
+  }
 
-    console.log(config.inputSource);
-    config.inputSource.addEventListener('input', updateValueDebounce);
-    config.inputSource.addEventListener('keydown', (e) => { handleKeyDownBS(e, config); });
+  renderNoMatches() {
+    const listDiv = document.createElement('div');
+    listDiv.id = this.listId;
+    listDiv.className = 'list-group shadow-sm';
     
-  });
+    listDiv.style.position = 'absolute';
+    listDiv.style.zIndex = '1050';
+    listDiv.style.width = `${this.config.inputSource.getBoundingClientRect().width}px`;
 
+    const item = document.createElement('div');
+    item.className = 'list-group-item text-muted';
+    item.textContent = this.config.noMatchesMessage;
+    
+    listDiv.appendChild(item);
+    document.body.appendChild(listDiv);
+    this.repositionDropdown();
+  }
+
+  repositionDropdown() {
+    const listDiv = document.getElementById(this.listId);
+    if (!listDiv) return;
+
+    const inputRect = this.config.inputSource.getBoundingClientRect();
+    listDiv.style.top = `${inputRect.bottom + window.scrollY}px`;
+    listDiv.style.left = `${inputRect.left + window.scrollX}px`;
+    
+    // Update width if not fixed
+    if (!this.config.maxWidth) {
+       listDiv.style.width = `${inputRect.width}px`;
+    }
+  }
+
+  closeList() {
+    const listDiv = document.getElementById(this.listId);
+    if (listDiv) {
+      listDiv.remove();
+    }
+    this.config.inputSource.setAttribute('aria-expanded', 'false');
+    this.config.inputSource.removeAttribute('aria-activedescendant');
+    this.currentFocus = -1;
+  }
+
+  selectItem(item) {
+    const displayName = this.getNestedProperty(item, this.config.fetchMap.name);
+    const idValue = this.getNestedProperty(item, this.config.fetchMap.id);
+
+    this.config.inputSource.value = displayName;
+    if (this.config.targetID) {
+      this.config.targetID.value = idValue;
+    }
+
+    if (typeof this.config.onSelect === 'function') {
+      this.config.onSelect(item);
+    } else if (typeof window.resultHandlerBS === 'function') {
+      // Legacy support
+      window.resultHandlerBS(this.config.name, item);
+    }
+  }
+
+  handleKeydown(e) {
+    const listDiv = document.getElementById(this.listId);
+    if (!listDiv) return;
+
+    const items = listDiv.querySelectorAll('.list-group-item-action');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      this.currentFocus++;
+      if (this.currentFocus >= items.length) this.currentFocus = 0;
+      this.setActive(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      this.currentFocus--;
+      if (this.currentFocus < 0) this.currentFocus = items.length - 1;
+      this.setActive(items);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (this.currentFocus > -1) {
+        items[this.currentFocus].click();
+      }
+    } else if (e.key === 'Escape') {
+      this.closeList();
+    } else if (e.key === 'Tab') {
+      this.closeList();
+    }
+  }
+
+  setActive(items) {
+    items.forEach(item => item.classList.remove('active'));
+    if (this.currentFocus === -1) return;
+    
+    const activeItem = items[this.currentFocus];
+    activeItem.classList.add('active');
+    
+    // Scroll to view
+    activeItem.scrollIntoView({ block: 'nearest' });
+    
+    // Accessibility
+    this.config.inputSource.setAttribute('aria-activedescendant', activeItem.id);
+  }
+
+  handleDocumentClick(e) {
+    if (e.target !== this.config.inputSource) {
+      this.closeList();
+    }
+  }
 }
